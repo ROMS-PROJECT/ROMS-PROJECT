@@ -1,9 +1,10 @@
 export default function userSearchMap() {
-    const data = [
-        { map: "리장타워", total: 50, win: 30, lose: 20, rate: "60%" },
-        { map: "부산", total: 20, win: 10, lose: 10, rate: "50%" },
-        { map: "수라바사", total: 40, win: 30, lose: 10, rate: "75%" },
-    ];
+  const data = [
+    { map: "리장타워", total: 50, win: 30, lose: 20, rate: "60%" },
+    { map: "부산", total: 20, win: 10, lose: 10, rate: "50%" },
+    { map: "수라바사", total: 40, win: 30, lose: 10, rate: "75%" },
+  ];
+
 
     return (
         <>
@@ -55,6 +56,21 @@ export default function userSearchMap() {
                     </div>
 
 
+        <div className="flex items-center gap-6 p-4 bg-gray-200">
+          {/* 왼쪽 프로필*/}
+          {/* src위치는 default로 public에서 찾는다*/}
+          <img src="/profile.png" alt="profile" className="w-20 h-20 rounded" />
+
+          {/* 오른쪽 전체 영역 */}
+          <div className="flex flex-col gap-3">
+            {/* 이름 + 아이콘 */}
+            <div>
+              <p className="font-bold">소우릎</p>
+              <div className="flex gap-2 mt-1">
+                <img src="/z.png" className="w-6 h-6" />
+                <img src="/youtube.png" className="w-6 h-6" />
+              </div>
+            </div>
 
                     <div className="grid grid-cols-2 gap-6">
 
