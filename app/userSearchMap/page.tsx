@@ -2,7 +2,10 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 
+
 export default function UserSearchMap() {
+
+    //유저 이름 불러오기
     const [username, setUsername] = useState('');
 
     useEffect(() => {
@@ -18,6 +21,37 @@ export default function UserSearchMap() {
 
         fetchUser();
     }, []);
+
+    //유저 이름 불러오기
+    const [seasonCnt, setSeasonCnt] = useState('');
+
+    useEffect(() => {
+        const fetchSeasonCnt = async () => {
+            const { data } = await supabase
+                .from('tb_season')
+                .select(`
+                    season_number,
+                    tb_team!inner (
+                    team_name,
+                    ranking,
+                    tb_join_players!inner (
+                        tb_player!inner (
+                        player_name
+                        )
+                    )
+                    )
+                `)
+                .eq('tb_team.tb_join_players.tb_player.player_name', '이선생');
+
+            console.log("나오나?");
+            console.log(data);
+            //if (data) setSeasonCnt(data.season_number);
+        };
+
+        fetchSeasonCnt();
+    }, []);
+
+
 
 
     return (
@@ -43,7 +77,7 @@ export default function UserSearchMap() {
                                 <p className="font-bold">{username}</p>
                                 <p className="font-bold">소우릎</p>
                                 <div className="flex gap-2 mt-1">
-                                    <img src="/z.png" className="w-6 h-6" />
+                                    <img src="/chzzk.png" className="w-6 h-6" />
                                     <img src="/youtube.png" className="w-6 h-6" />
                                 </div>
                             </div>
@@ -90,17 +124,17 @@ export default function UserSearchMap() {
                                     <div className="flex justify-between">
                                         <div className="text-center">
                                             <p>Top1</p>
-                                            <img src="/hero1.png" className="w-16 h-16 mx-auto" />
+                                            <img src="/test.png" className="w-16 h-16 mx-auto" />
                                             <p>60번</p>
                                         </div>
                                         <div className="text-center">
                                             <p>Top2</p>
-                                            <img src="/hero2.png" className="w-16 h-16 mx-auto" />
+                                            <img src="/test.png" className="w-16 h-16 mx-auto" />
                                             <p>30번</p>
                                         </div>
                                         <div className="text-center">
                                             <p>Top3</p>
-                                            <img src="/hero3.png" className="w-16 h-16 mx-auto" />
+                                            <img src="/test.png" className="w-16 h-16 mx-auto" />
                                             <p>25번</p>
                                         </div>
                                     </div>
@@ -112,17 +146,17 @@ export default function UserSearchMap() {
                                     <div className="flex justify-between">
                                         <div className="text-center">
                                             <p>Top1</p>
-                                            <img src="/map1.png" className="w-20 h-12 mx-auto" />
+                                            <img src="/busan.png" className="w-20 h-12 mx-auto" />
                                             <p>90%</p>
                                         </div>
                                         <div className="text-center">
                                             <p>Top2</p>
-                                            <img src="/map2.png" className="w-20 h-12 mx-auto" />
+                                            <img src="/dorado.png" className="w-20 h-12 mx-auto" />
                                             <p>80%</p>
                                         </div>
                                         <div className="text-center">
                                             <p>Top3</p>
-                                            <img src="/map3.png" className="w-20 h-12 mx-auto" />
+                                            <img src="/eichenwalde.png" className="w-20 h-12 mx-auto" />
                                             <p>65%</p>
                                         </div>
                                     </div>
