@@ -1,65 +1,93 @@
 import Image from "next/image";
 
 export default function Home() {
+  // 샘플 데이터 (실제 DB 데이터와 연결하여 사용하세요)
+  const topWinners = [
+    { rank: "TOP 1", name: "러너", wins: "5회", img: "/runner.png" },
+    { rank: "TOP 2", name: "라임", wins: "4회", img: "/lime.png" },
+    { rank: "TOP 3", name: "김성빈", wins: "3회", img: "/kim.png" },
+    { rank: "TOP 4", name: "러쉬릭", wins: "2회", img: "/rush.png" },
+    { rank: "TOP 5", name: "라열", wins: "1회", img: "/rayeol.png" },
+  ];
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="w-full max-w-7xl mx-auto p-6 bg-white text-gray-900 space-y-12">
+      {/* 1. 러너리그 우승 횟수 Top 5 */}
+      <section>
+        <h2 className="text-xl font-bold mb-6 border-l-4 border-blue-500 pl-3">
+          모든 시즌 우승횟수 Top5
+        </h2>
+        <div className="grid grid-cols-5 gap-4">
+          {topWinners.map((player, idx) => (
+            // 카드 배경을 연한 회색으로, 테두리는 밝은 회색으로 변경
+            <div
+              key={idx}
+              className={`relative p-4 rounded-lg border ${idx === 0 ? "border-blue-500 bg-blue-50" : "border-gray-200 bg-gray-50"}`}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              <span className="text-xs font-bold text-gray-500">
+                {player.rank}
+              </span>
+              <div className="mt-2 flex flex-col items-center">
+                <div className="w-24 h-24 rounded-full bg-gray-200 mb-3 overflow-hidden border-2 border-white shadow-sm"></div>
+                <p className="font-bold">{player.name}</p>
+                <p className="text-blue-600 text-sm font-mono">
+                  {player.wins} WINS
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 2. 시즌 최다 기록 (개별 지표) */}
+      {/* 2. 시즌 최다 기록 & 누적 기록 */}
+      {/* 아래 카드들의 bg-gray-800 등을 bg-gray-100이나 bg-white로 변경하여 사용하세요 */}
+      <section>
+        <div className="grid grid-cols-6 gap-3">
+          {[
+            "최다처치",
+            "최다도움",
+            "최다죽음",
+            "최다피해",
+            "최다치유",
+            "최다경감",
+          ].map((label, idx) => (
+            <div
+              key={idx}
+              className="bg-gray-100 rounded-xl p-4 flex flex-col items-center border border-gray-200"
             >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              <span className="text-xs text-gray-500 mb-2">{label}</span>
+              <div className="w-16 h-16 rounded-full bg-gray-200 mb-2"></div>
+              <p className="text-sm font-bold">플레이어</p>
+              <p className="text-blue-600 text-xs mt-1 font-bold">60 Kills</p>
+            </div>
+          ))}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* 3. 누적 최다 기록 (그리드 하단) */}
+      <section>
+        <div className="grid grid-cols-6 gap-3">
+          {[
+            "누적최다처치",
+            "누적최다도움",
+            "누적최다죽음",
+            "누적최다피해",
+            "누적최다치유",
+            "누적최다경감",
+          ].map((label, idx) => (
+            <div
+              key={idx}
+              className="bg-gray-100 rounded-xl p-4 flex flex-col items-center border border-gray-200"
+            >
+              <span className="text-xs text-gray-500 mb-2">{label}</span>
+              <div className="w-16 h-16 rounded-full bg-gray-200 mb-2"></div>
+              <p className="text-sm font-bold">플레이어</p>
+              <p className="text-blue-600 text-xs mt-1 font-bold">60 Kills</p>
+            </div>
+          ))}
         </div>
-      </main>
+      </section>
     </div>
   );
 }

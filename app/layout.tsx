@@ -17,7 +17,6 @@ export default function RootLayout({
         <Header /> {/* 상단 header, nav 바*/}
         <main>
           {/* 실제 페이지 내용 */}
-          실제 메인 내용
           {children}
         </main>
         <Footer /> {/* 하단바 부품 */}
