@@ -1,3 +1,7 @@
+/**
+ * 테스트용 기본 API 경로
+ */
+
 import { NextResponse } from 'next/server';
 
 export async function GET() {

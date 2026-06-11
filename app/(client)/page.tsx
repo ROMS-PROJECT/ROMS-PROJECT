@@ -1,5 +1,10 @@
 import Image from "next/image";
 
+/**
+ * 메인 홈페이지(/)화면
+ * @param param0 @
+ * @returns
+ */
 export default function Home() {
   // 샘플 데이터 (실제 DB 데이터와 연결하여 사용하세요)
   const topWinners = [
