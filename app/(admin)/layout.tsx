@@ -32,11 +32,27 @@ export default function AdminLayout({
   );
 }
 
-// 관리자 메뉴 정의
-const ADMIN_MENUS = [
+// 관리자 메뉴 href, label
+const ADMIN_HREF_LABEL = [
   {
     href: "/admin/seasons",
     label: "시즌등록",
+  },
+  {
+    href: "/admin/users",
+    label: "사용자 관리",
+  },
+  {
+    href: "/admin/stats",
+    label: "통계 보기",
+  },
+];
+
+// 관리자 메뉴 정의
+const ADMIN_MENUS = [
+  {
+    href: ADMIN_HREF_LABEL[0].href,
+    label: ADMIN_HREF_LABEL[0].label,
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -59,8 +75,8 @@ const ADMIN_MENUS = [
     ),
   },
   {
-    href: "/admin/users",
-    label: "사용자 관리",
+    href: ADMIN_HREF_LABEL[1].href,
+    label: ADMIN_HREF_LABEL[1].label,
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -81,8 +97,8 @@ const ADMIN_MENUS = [
     ),
   },
   {
-    href: "/admin/stats",
-    label: "통계 보기",
+    href: ADMIN_HREF_LABEL[2].href,
+    label: ADMIN_HREF_LABEL[2].label,
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
