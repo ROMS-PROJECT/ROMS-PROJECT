@@ -8,6 +8,14 @@
  */
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table";
 
 // 시즌 변수 선언
 interface Season {
@@ -36,6 +44,9 @@ export default function SeasonRegistrationPage() {
   // 현재 데이터를 불러오고 있는 중인지(로딩 중인지)를 나타내는 변수
   // 값이 true이면 로딩 스피너(빙글빙글 도는 애니메이션)를 화면에 보여줌
   const [isLoading, setIsLoading] = useState(true);
+
+  // 그리드에서 선택된 시즌의 ID(번호)를 저장하는 변수 (null이면 '새 시즌 등록' 모드)
+  const [selectedSeasonId, setSelectedSeasonId] = useState<number | null>(null);
   // ====================== 변수 선언 종료 ========================
 
   // ====================== 함수 선언 시작 ========================
@@ -44,7 +55,7 @@ export default function SeasonRegistrationPage() {
     const { data, error } = await supabase
       .from("tb_season")
       .select("*")
-      .order("season_number", { ascending: false });
+      .order("season_number", { ascending: true });
 
     if (error) {
       console.error("Error fetching seasons:", error);
@@ -67,6 +78,51 @@ export default function SeasonRegistrationPage() {
     loadData();
   }, []); // []는 한번만 실행해라 의미
 
+  // 🖱️ 목록에서 특정 행을 클릭했을 때 실행되는 함수
+  const handleRowClick = (season: Season) => {
+    setSelectedSeasonId(season.season_number);
+    setFormData({
+      name: season.season_name || "",
+      // HTML input type="date"는 YYYY-MM-DD 형식만 받으므로 시간 부분(T 이후)을 잘라냅니다.
+      startDate: season.season_start_date
+        ? season.season_start_date.split("T")[0]
+        : "",
+      description: season.remark || "",
+    });
+  };
+
+  // 🧹 폼을 비우고 "새 시즌 등록" 모드로 돌아가는 함수
+  const handleClearSelection = () => {
+    setSelectedSeasonId(null);
+    setFormData({ name: "", startDate: "", description: "" });
+  };
+
+  // 🗑️ 삭제 버튼 기능
+  const handleDelete = async () => {
+    if (!selectedSeasonId) {
+      alert("삭제할 시즌을 왼쪽 목록에서 먼저 클릭하여 선택해주세요.");
+      return;
+    }
+    if (!window.confirm("정말 이 시즌을 삭제하시겠습니까?")) return;
+
+    setIsLoading(true);
+    const { error } = await supabase
+      .from("tb_season")
+      .delete()
+      .eq("season_number", selectedSeasonId);
+
+    if (error) {
+      console.error("Error deleting season:", error);
+      alert(`삭제 중 오류가 발생했습니다: ${error.message}`);
+    } else {
+      alert("시즌이 성공적으로 삭제되었습니다.");
+      const data = await fetchSeasonsData(); // 목록 새로고침
+      if (data) setSeasons(data);
+      setIsLoading(false);
+      handleClearSelection(); // 폼 초기화
+    }
+  };
+
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -79,35 +135,56 @@ export default function SeasonRegistrationPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Supabase tb_season 테이블 컬럼 구조에 맞춰 데이터 전송
-    const { error } = await supabase.from("tb_season").insert([
-      {
-        season_name: formData.name,
-        season_start_date: formData.startDate
-          ? new Date(formData.startDate).toISOString()
-          : null,
-        remark: formData.description,
-        created_by: "admin", // 일단 임의의 작성자 지정 (필수값)
-        create_date: new Date().toISOString(),
-      },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ] as any);
+    if (selectedSeasonId) {
+      // 📝 수정 모드 (Update)
+      const { error } = await supabase
+        .from("tb_season")
+        .update({
+          season_name: formData.name,
+          season_start_date: formData.startDate
+            ? new Date(formData.startDate).toISOString()
+            : null,
+          remark: formData.description,
+        })
+        .eq("season_number", selectedSeasonId);
 
-    if (error) {
-      console.error("Error inserting season:", error);
-      alert(`등록 중 오류가 발생했습니다: ${error.message}`);
+      if (error) {
+        console.error("Error updating season:", error);
+        alert(`수정 중 오류가 발생했습니다: ${error.message}`);
+      } else {
+        alert("시즌 정보가 성공적으로 수정되었습니다!");
+        setIsLoading(true);
+        const data = await fetchSeasonsData();
+        if (data) setSeasons(data);
+        setIsLoading(false);
+        handleClearSelection();
+      }
     } else {
-      alert("시즌이 성공적으로 등록되었습니다!");
-      setIsLoading(true);
-      const data = await fetchSeasonsData(); // 목록 새로고침
-      if (data) setSeasons(data);
-      setIsLoading(false);
-      setFormData({
-        // 폼 초기화
-        name: "",
-        startDate: "",
-        description: "",
-      });
+      // 🆕 등록 모드 (Insert)
+      const { error } = await supabase.from("tb_season").insert([
+        {
+          season_name: formData.name,
+          season_start_date: formData.startDate
+            ? new Date(formData.startDate).toISOString()
+            : null,
+          remark: formData.description,
+          created_by: "admin", // 일단 임의의 작성자 지정 (필수값)
+          create_date: new Date().toISOString(),
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ] as any);
+
+      if (error) {
+        console.error("Error inserting season:", error);
+        alert(`등록 중 오류가 발생했습니다: ${error.message}`);
+      } else {
+        alert("시즌이 성공적으로 등록되었습니다!");
+        setIsLoading(true);
+        const data = await fetchSeasonsData(); // 목록 새로고침
+        if (data) setSeasons(data);
+        setIsLoading(false);
+        handleClearSelection();
+      }
     }
   };
 
@@ -122,9 +199,9 @@ export default function SeasonRegistrationPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* 왼쪽: 등록된 시즌 목록 표시 영역 */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 h-fit">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+        {/* 왼쪽: 등록된 시즌 목록 표시 영역 (60% 비율) */}
+        <div className="lg:col-span-3 bg-white rounded-2xl shadow-sm border border-slate-200 p-8 h-fit">
           <h2 className="text-xl font-bold text-slate-800 mb-6">
             등록된 시즌 목록
           </h2>
@@ -138,58 +215,85 @@ export default function SeasonRegistrationPage() {
               등록된 시즌이 없습니다.
             </div>
           ) : (
-            <div className="overflow-x-auto rounded-lg border border-slate-200">
-              <table className="w-full text-sm text-left">
-                <thead className="bg-slate-50 text-slate-700 font-medium border-b border-slate-200">
-                  <tr>
-                    <th className="px-4 py-3">번호</th>
-                    <th className="px-4 py-3">이름</th>
-                    <th className="px-4 py-3">시작일</th>
-                    <th className="px-4 py-3">비고(설명)</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200">
-                  {seasons.map((season, idx) => (
-                    <tr
-                      key={season.season_number || idx}
-                      className="hover:bg-slate-50 transition-colors"
-                    >
-                      <td className="px-4 py-3 font-medium text-slate-900">
-                        {season.season_number}
-                      </td>
-                      <td className="px-4 py-3 text-slate-900">
-                        {season.season_name || "-"}
-                      </td>
-                      <td className="px-4 py-3 text-slate-600">
-                        {season.season_start_date
-                          ? new Date(
-                              season.season_start_date,
-                            ).toLocaleDateString()
-                          : "-"}
-                      </td>
-                      <td className="px-4 py-3 text-slate-600">
-                        {season.remark || "-"}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <Table>
+              <TableHeader>
+                <TableRow className="text-center text-slate-700 font-medium">
+                  <TableHead hidden>테이블PK번호</TableHead>
+                  <TableHead>번호</TableHead>
+                  <TableHead>이름</TableHead>
+                  <TableHead>시작일</TableHead>
+                  <TableHead>비고(설명)</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {seasons.map((season, idx) => (
+                  <TableRow
+                    key={season.season_number || idx}
+                    onClick={() => handleRowClick(season)}
+                    className={`cursor-pointer ${
+                      selectedSeasonId === season.season_number
+                        ? "bg-indigo-50"
+                        : "hover:bg-slate-50"
+                    }`}
+                  >
+                    <TableCell hidden className="font-medium text-slate-900">
+                      {season.season_number}
+                    </TableCell>
+                    <TableCell className="font-medium text-slate-900 text-center">
+                      {idx + 1}
+                    </TableCell>
+                    <TableCell className="text-slate-900">
+                      {season.season_name || "-"}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {season.season_start_date
+                        ? new Date(
+                            season.season_start_date,
+                          ).toLocaleDateString()
+                        : "-"}
+                    </TableCell>
+                    <TableCell>{season.remark || "-"}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           )}
         </div>
 
-        {/* 오른쪽: 시즌 등록 폼 */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 h-fit">
+        {/* 오른쪽: 시즌 등록 폼 (40% 비율) */}
+        <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 p-8 h-fit">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-slate-800">새 시즌 등록</h2>
-            {/* 제출 버튼 */}
-            <button
-              type="submit"
-              form="season-form"
-              className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-sm hover:shadow transition-all active:scale-[0.98]"
-            >
-              저장
-            </button>
+            <h2 className="text-xl font-bold text-slate-800">
+              {selectedSeasonId ? "시즌 상세 / 수정" : "새 시즌 등록"}
+            </h2>
+            <div className="flex gap-2">
+              {/* 새로 쓰기 버튼 */}
+              {selectedSeasonId && (
+                <button
+                  type="button"
+                  onClick={handleClearSelection}
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg shadow-sm hover:shadow transition-all active:scale-[0.98]"
+                >
+                  새로 쓰기
+                </button>
+              )}
+              {/* 저장 버튼 */}
+              <button
+                type="submit"
+                form="season-form"
+                className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-sm hover:shadow transition-all active:scale-[0.98]"
+              >
+                저장
+              </button>
+              {/* 삭제 버튼 */}
+              <button
+                type="button"
+                className="px-6 py-2 bg-rose-500 hover:bg-rose-600 text-white font-medium rounded-lg shadow-sm hover:shadow transition-all active:scale-[0.98]"
+                onClick={handleDelete}
+              >
+                삭제
+              </button>
+            </div>
           </div>
           <form id="season-form" onSubmit={handleSubmit} className="space-y-6">
             {/* 시즌 이름 */}
@@ -206,7 +310,7 @@ export default function SeasonRegistrationPage() {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                placeholder="예: 2024 봄 시즌"
+                placeholder=""
                 className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors bg-slate-50 focus:bg-white outline-none"
                 required
               />

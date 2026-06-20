@@ -1,4 +1,5 @@
 import { SidebarItem } from "@/components/admin/SidebarItem";
+import Link from "next/link";
 
 // 관리자용 레이아웃 뼈대
 export default function AdminLayout({
@@ -10,8 +11,8 @@ export default function AdminLayout({
     <div className="flex h-screen bg-slate-50">
       {/* 관리자 전용 좌측 사이드바 예시 */}
       <aside className="w-64 bg-white border-r border-slate-200 text-slate-800 p-4 shadow-sm">
-        <h1 className="text-xl font-bold mb-8 text-indigo-600">
-          ROMS Project 관리자용
+        <h1 className="text-xl font-bold mb-8 text-indigo-600 hover:text-indigo-800 transition-colors">
+          <Link href="/admin">ROMS Project 관리자용</Link>
         </h1>
         {/* 배열 돌면서 컴포넌트 랜더링 */}
         <nav className="flex flex-col gap-2">
@@ -27,7 +28,7 @@ export default function AdminLayout({
       </aside>
 
       {/* 우측 메인 콘텐츠 영역 */}
-      <main className="flex-1 p-8 overflow-y-auto">{children}</main>
+      <main className="flex-1 overflow-y-auto">{children}</main>
     </div>
   );
 }
