@@ -189,14 +189,19 @@ export default function SeasonRegistrationPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4">
-      <div className="mb-8">
+    <div className="mx-auto py-4 px-4">
+      <div className="mb-4">
         <h1 className="text-3xl font-bold text-slate-800 tracking-tight">
           시즌 관리
         </h1>
         <p className="text-slate-500 mt-2 text-lg">
           시즌 목록을 조회하고 새로운 시즌을 등록하세요.
         </p>
+      </div>
+      <div>
+        <div className="lg:col-span-3 bg-white rounded-2xl shadow-sm border border-slate-200 p-8 h-fit">
+          검색
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
@@ -219,9 +224,9 @@ export default function SeasonRegistrationPage() {
               <TableHeader>
                 <TableRow className="text-center text-slate-700 font-medium">
                   <TableHead hidden>테이블PK번호</TableHead>
-                  <TableHead>번호</TableHead>
-                  <TableHead>이름</TableHead>
-                  <TableHead>시작일</TableHead>
+                  <TableHead className="w-10">번호</TableHead>
+                  <TableHead className="w-30">이름</TableHead>
+                  <TableHead className="w-30">시작일</TableHead>
                   <TableHead>비고(설명)</TableHead>
                 </TableRow>
               </TableHeader>
@@ -236,23 +241,21 @@ export default function SeasonRegistrationPage() {
                         : "hover:bg-slate-50"
                     }`}
                   >
-                    <TableCell hidden className="font-medium text-slate-900">
+                    <TableCell hidden className="">
                       {season.season_number}
                     </TableCell>
-                    <TableCell className="font-medium text-slate-900 text-center">
-                      {idx + 1}
-                    </TableCell>
-                    <TableCell className="text-slate-900">
+                    <TableCell className="text-center">{idx + 1}</TableCell>
+                    <TableCell className="text-left">
                       {season.season_name || "-"}
                     </TableCell>
                     <TableCell className="text-center">
                       {season.season_start_date
-                        ? new Date(
-                            season.season_start_date,
-                          ).toLocaleDateString()
+                        ? season.season_start_date.split("T")[0]
                         : "-"}
                     </TableCell>
-                    <TableCell>{season.remark || "-"}</TableCell>
+                    <TableCell className="text-left">
+                      {season.remark || "-"}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
