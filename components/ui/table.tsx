@@ -45,7 +45,7 @@ export function TableRow({
 }: React.HTMLAttributes<HTMLTableRowElement>) {
   return (
     <tr
-      className={`transition-colors divide-x divide-slate-200 ${className || ""}`}
+      className={`transition-colors divide-x divide-slate-200 text-slate-700 font-medium ${className || ""}`}
       {...props}
     />
   );
@@ -58,7 +58,7 @@ export function TableHead({
 }: React.ThHTMLAttributes<HTMLTableCellElement>) {
   return (
     <th
-      className={`px-1 py-1 font-semibold text-slate-600 text-center ${className || ""}`}
+      className={`px-3 py-3 text-center text-base ${className || ""}`}
       {...props}
     />
   );
@@ -69,7 +69,5 @@ export function TableCell({
   className,
   ...props
 }: React.TdHTMLAttributes<HTMLTableCellElement>) {
-  return (
-    <td className={`px-1 py-1 text-slate-600 ${className || ""}`} {...props} />
-  );
+  return <td className={`px-3 py-3 text-sm ${className || ""}`} {...props} />;
 }
