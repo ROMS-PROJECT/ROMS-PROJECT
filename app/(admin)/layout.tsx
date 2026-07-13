@@ -37,7 +37,7 @@ export default function AdminLayout({
 const ADMIN_HREF_LABEL = [
   {
     href: "/admin/seasons",
-    label: "시즌등록",
+    label: "시즌관리",
   },
   {
     href: "/admin/users",

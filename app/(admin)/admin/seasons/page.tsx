@@ -47,6 +47,9 @@ export default function SeasonRegistrationPage() {
 
   // 그리드에서 선택된 시즌의 ID(번호)를 저장하는 변수 (null이면 '새 시즌 등록' 모드)
   const [selectedSeasonId, setSelectedSeasonId] = useState<number | null>(null);
+
+  // 저장중 상태 여부 확인(CRUD모두 적용)
+  const [isSaving, setIsSaving] = useState(false);
   // ====================== 변수 선언 종료 ========================
 
   // ====================== 함수 선언 시작 ========================
@@ -99,6 +102,8 @@ export default function SeasonRegistrationPage() {
 
   // 🗑️ 삭제 버튼 기능
   const handleDelete = async () => {
+    if (isSaving) return; // 저장 중에는 중복 클릭 방지
+    setIsSaving(true); // 저장 상태 시작
     if (!selectedSeasonId) {
       alert("삭제할 시즌을 왼쪽 목록에서 먼저 클릭하여 선택해주세요.");
       return;
@@ -120,6 +125,7 @@ export default function SeasonRegistrationPage() {
       if (data) setSeasons(data);
       setIsLoading(false);
       handleClearSelection(); // 폼 초기화
+      setIsSaving(false); // 저장중 상태 해제
     }
   };
 
@@ -136,6 +142,8 @@ export default function SeasonRegistrationPage() {
     e.preventDefault();
 
     if (selectedSeasonId) {
+      if (isSaving) return; // 저장 중에는 중복 클릭 방지
+      setIsSaving(true); // 저장 상태 시작
       // 📝 수정 모드 (Update)
       const { error } = await supabase
         .from("tb_season")
@@ -158,9 +166,12 @@ export default function SeasonRegistrationPage() {
         if (data) setSeasons(data);
         setIsLoading(false);
         handleClearSelection();
+        setIsSaving(false); // 저장 상태 해제
       }
     } else {
-      // 🆕 등록 모드 (Insert)
+      if (isSaving) return; // 저장 중에는 중복 클릭 방지
+      setIsSaving(true); // 저장 상태 시작
+      // 등록 모드 (Insert)
       const { error } = await supabase.from("tb_season").insert([
         {
           season_name: formData.name,
@@ -171,8 +182,7 @@ export default function SeasonRegistrationPage() {
           created_by: "admin", // 일단 임의의 작성자 지정 (필수값)
           create_date: new Date().toISOString(),
         },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ] as any);
+      ] as Omit<Season, "season_number">[]);
 
       if (error) {
         console.error("Error inserting season:", error);
@@ -184,6 +194,7 @@ export default function SeasonRegistrationPage() {
         if (data) setSeasons(data);
         setIsLoading(false);
         handleClearSelection();
+        setIsSaving(false); // 저장 상태 해제
       }
     }
   };
@@ -198,17 +209,17 @@ export default function SeasonRegistrationPage() {
           시즌 목록을 조회하고 새로운 시즌을 등록하세요.
         </p>
       </div>
-      <div>
+      <div className="mb-4">
         <div className="lg:col-span-3 bg-white rounded-2xl shadow-sm border border-slate-200 p-8 h-fit">
           검색
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-        {/* 왼쪽: 등록된 시즌 목록 표시 영역 (60% 비율) */}
-        <div className="lg:col-span-3 bg-white rounded-2xl shadow-sm border border-slate-200 p-8 h-fit">
-          <h2 className="text-xl font-bold text-slate-800 mb-6">
-            등록된 시즌 목록
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-3">
+        {/* 왼쪽: 등록된 시즌 목록 표시 영역 */}
+        <div className="lg:col-span-3 bg-white rounded-2xl shadow-sm border border-slate-200 pt-8 h-[calc(100vh-220px)] overflow-y-auto">
+          <h2 className="text-xl font-bold text-slate-800 mb-6 px-8">
+            시즌 목록
           </h2>
 
           {isLoading ? (
@@ -222,10 +233,10 @@ export default function SeasonRegistrationPage() {
           ) : (
             <Table>
               <TableHeader>
-                <TableRow className="text-center text-slate-700 font-medium">
+                <TableRow className="text-center">
                   <TableHead hidden>테이블PK번호</TableHead>
-                  <TableHead className="w-10">번호</TableHead>
-                  <TableHead className="w-30">이름</TableHead>
+                  <TableHead className="w-15">번호</TableHead>
+                  <TableHead className="w-50">이름</TableHead>
                   <TableHead className="w-30">시작일</TableHead>
                   <TableHead>비고(설명)</TableHead>
                 </TableRow>
